@@ -901,14 +901,138 @@ let users = [
   },
 ];
 
-/*considerando el array users, completar los siguientes requerimientos:
+/*considerando el array users, completar los siguientes requerimientos:*/
 
-1.- Se requiere poder localizar a un usuario con base en su UUID
-2.- Se requiere obtener una nueva lista en la que aparezcan todos los usuarios con todas sus propiedades, pero que el nombre sea sólo un string con el formato "{title} {name} {last}", por ejemplo "Mr. Juan Perez Prado"
-3.- Se requiere una lista con los países disponibles en la lista original sin repetir
-4.- Se requiere poder obtener una lista que muestre a los usuarios pertenecientes a un país específico ( Iran, Norway, etc)
-5.- Se requiere una lista que muestre a aquellos usuarios que no cuenten con un password seguro, considerando que un password seguro tiene más de 8 caracteres, e incluye mayúsculas, minúsculas y números ( revisar regex)
-6.- Indicar la cantidad de usuarios mayores de 30 años
-7.- Indicar la edad promedio de los usuarios en la lista
-8.- Crear una lista que agrupe a los usuarios por género (una lista para masculinos, una para femeninos)
-*/
+/*1.- Se requiere poder localizar a un usuario con base en su UUID*/
+console.log("EJERCICIO 1")
+const findUserByUUID = (uuid, usersArray) => {
+  return usersArray.find(user => user.login.uuid === uuid);
+};
+
+// Uso
+let uuidToSearch = "6a37dde9-4ddc-4ff5-85ae-b5aa1e260284";
+let foundUser = findUserByUUID(uuidToSearch, users);
+if (foundUser) {
+    console.log(foundUser);
+} else {
+    console.log("Usuario no encontrado");
+}
+
+/*2.- Se requiere obtener una nueva lista en la que aparezcan todos los usuarios con todas sus propiedades, pero que el nombre sea sólo un string con el formato "{title} {name} {last}", por ejemplo "Mr. Juan Perez Prado"*/
+console.log("EJERCICIO 2")
+let transformedUsers = users.map(user => {
+  return {
+      gender: user.gender,
+      name: `${user.name.title} ${user.name.first} ${user.name.last}`,
+      location: {
+          street: {
+              number: user.location.street.number,
+              name: user.location.street.name
+          },
+          city: user.location.city,
+          state: user.location.state,
+          country: user.location.country,
+          postcode: user.location.postcode,
+          coordinates: {
+              latitude: user.location.coordinates.latitude,
+              longitude: user.location.coordinates.longitude
+          },
+          timezone: {
+              offset: user.location.timezone.offset,
+              description: user.location.timezone.description
+          },
+      },
+      login: {
+          uuid: user.login.uuid,
+          username: user.login.username,
+          password: user.login.password,
+          salt: user.login.salt,
+          md5: user.login.md5,
+          sha1: user.login.sha1,
+          sha256: user.login.sha256
+      },
+      dob: {
+          date: user.dob.date,
+          age: user.dob.age
+      },
+      registered: {
+          date: user.registered.date,
+          age: user.registered.age
+      },
+      nat: user.nat
+  };
+});
+
+
+
+
+
+
+/*3.- Se requiere una lista con los países disponibles en la lista original sin repetir*/
+console.log("EJERCICIO 3")
+const getUniqueCountries = users => [...new Set(users.map(user => user.location.country))];
+
+const uniqueCountries = getUniqueCountries(users);
+console.log(uniqueCountries);
+
+/*4.- Se requiere poder obtener una lista que muestre a los usuarios pertenecientes a un país específico ( Iran, Norway, etc)*/
+console.log("EJERCICIO 4");
+
+const getUsersByCountry = (users, country) => {
+  return users
+      .filter(user => user.location.country === country)
+      .map(user => ({
+          name: `${user.name.title} ${user.name.first} ${user.name.last}`,
+          country: user.location.country
+      }));
+}
+
+// Ejemplo de uso:
+const norwegianUsers = getUsersByCountry(users, "Norway");
+console.log(norwegianUsers);
+/*5.- Se requiere una lista que muestre a aquellos usuarios que no cuenten con un password seguro, considerando que un password seguro tiene más de 8 caracteres, e incluye mayúsculas, minúsculas y números ( revisar regex)*/
+console.log("EJERCICIO 5")
+const getUsersWithWeakPassword = users => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{9,}$/;
+  return users.filter(user => !regex.test(user.login.password));
+};
+
+// Ejemplo de uso:
+const weakPasswordUsers = getUsersWithWeakPassword(users);
+console.log(weakPasswordUsers);
+
+/*6.- Indicar la cantidad de usuarios mayores de 30 años*/
+console.log("EJERCICIO 7")
+const countUsersOver30 = users => users.filter(user => user.dob.age > 30).length;
+
+// Ejemplo de uso:
+const numberOfUsersOver30 = countUsersOver30(users);
+console.log(numberOfUsersOver30);
+
+/*7.- Indicar la edad promedio de los usuarios en la lista*/
+console.log("EJERCICIO 7")
+const averageAge = users => {
+  const totalAge = users.reduce((sum, user) => sum + user.dob.age, 0);
+  return totalAge / users.length;
+};
+
+// Ejemplo de uso:
+const avgAge = averageAge(users);
+console.log(avgAge);
+
+/*8.- Crear una lista que agrupe a los usuarios por género (una lista para masculinos, una para femeninos)*/
+console.log("EJERCICIO 8")
+const groupByGender = users => {
+  const males = users.filter(user => user.gender === 'male');
+  const females = users.filter(user => user.gender === 'female');
+  
+  return {
+      males,
+      females
+  };
+};
+
+// Ejemplo de uso:
+const groupedUsers = groupByGender(users);
+console.log(groupedUsers.males);  // Lista de usuarios masculinos
+console.log(groupedUsers.females);  // Lista de usuarios femeninos
